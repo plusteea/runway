@@ -31,7 +31,7 @@ function nbrbProxy(): Plugin {
   }
 }
 
-export default defineConfig({
-  base: process.env.BASE || '/',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/runway/' : '/',
   plugins: [react(), tailwindcss(), nbrbProxy()],
-})
+}))

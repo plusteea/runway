@@ -24,6 +24,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_GITHUB_TOKEN: ${{ secrets.RUNWAY_GIST_TOKEN }}
+          VITE_GIST_ID: ${{ secrets.RUNWAY_GIST_ID }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs

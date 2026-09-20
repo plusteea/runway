@@ -15,8 +15,10 @@ function plusMonths(n: number): string {
 }
 
 export function Onboarding() {
-  const { data, setData } = useStore()
+  const { data, setData, connectCloud, cloudEnabled } = useStore()
   const [step, setStep] = useState(1)
+  const [syncInput, setSyncInput] = useState('')
+  const [syncing, setSyncing] = useState(false)
   const [first, setFirst] = useState<Car>({
     name: 'Camry XV40',
     priceUsd: 8000,
@@ -217,6 +219,32 @@ export function Onboarding() {
             </div>
           ) : null}
           {error ? <p className="mt-4 text-sm text-bad">{error}</p> : null}
+          {step === 1 && !cloudEnabled ? (
+            <div className="mt-8 grid gap-2">
+              <p className="text-[13px] text-muted">Уже настраивали на другом устройстве?</p>
+              <TextInput
+                value={syncInput}
+                onChange={(e) => setSyncInput(e.target.value)}
+                placeholder="Код синхронизации rw1.…"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={syncing || !syncInput.trim()}
+                onClick={() => {
+                  setError('')
+                  setSyncing(true)
+                  void connectCloud(syncInput)
+                    .catch((err: unknown) =>
+                      setError(err instanceof Error ? err.message : 'Не удалось открыть копилку.'),
+                    )
+                    .finally(() => setSyncing(false))
+                }}
+              >
+                {syncing ? 'Открываю…' : 'Открыть существующую копилку'}
+              </Button>
+            </div>
+          ) : null}
           <div className="mt-8 flex gap-3">
             {step > 1 ? (
               <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>

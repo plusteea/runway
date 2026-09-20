@@ -15,12 +15,28 @@ import { useStore } from './store'
 type Tab = 'home' | 'savings' | 'history' | 'settings'
 type Overlay = null | 'add' | 'bought'
 
+function syncLabel(status: ReturnType<typeof useStore>['syncStatus']) {
+  if (status === 'loading') return 'Облако · загрузка'
+  if (status === 'saving') return 'Облако · сохраняю'
+  if (status === 'ok') return 'Облако · GitHub'
+  if (status === 'error') return 'Облако · ошибка'
+  return 'Только это устройство'
+}
+
 export default function App() {
-  const { data, refreshRate, rateStatus } = useStore()
+  const { data, refreshRate, rateStatus, ready, syncStatus } = useStore()
   const rate = effectiveRate(data)
   const usingOverride = Boolean(data.fx.overrideRate)
   const [tab, setTab] = useState<Tab>('home')
   const [overlay, setOverlay] = useState<Overlay>(null)
+
+  if (!ready) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-bg text-muted">
+        <p>Загружаю копилку…</p>
+      </div>
+    )
+  }
 
   if (!data.onboarded) return <Onboarding />
 
@@ -77,6 +93,7 @@ export default function App() {
                     : 'НБРБ · за $1'
                   : 'Подтянуть НБРБ'}
             </button>
+            <p className="mt-3 text-[11px] text-muted">{syncLabel(syncStatus)}</p>
           </div>
           <button
             type="button"

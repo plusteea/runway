@@ -27,24 +27,29 @@ export function emptyData(): AppData {
   }
 }
 
+export function parseData(raw: unknown): AppData | null {
+  if (!raw || typeof raw !== 'object') return null
+  const parsed = raw as AppData
+  if (parsed.version !== 1) return null
+  const base = emptyData()
+  return {
+    ...base,
+    ...parsed,
+    cars: {
+      ...base.cars,
+      ...parsed.cars,
+      later: { ...base.cars.later, ...parsed.cars?.later },
+    },
+    house: { ...base.house, ...parsed.house },
+    fx: { ...base.fx, ...parsed.fx },
+  }
+}
+
 export function loadData(): AppData {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return emptyData()
-    const parsed = JSON.parse(raw) as AppData
-    if (parsed.version !== 1) return emptyData()
-    const base = emptyData()
-    return {
-      ...base,
-      ...parsed,
-      cars: {
-        ...base.cars,
-        ...parsed.cars,
-        later: { ...base.cars.later, ...parsed.cars?.later },
-      },
-      house: { ...base.house, ...parsed.house },
-      fx: { ...base.fx, ...parsed.fx },
-    }
+    return parseData(JSON.parse(raw) as unknown) ?? emptyData()
   } catch {
     return emptyData()
   }

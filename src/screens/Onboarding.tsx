@@ -89,16 +89,16 @@ export function Onboarding() {
   const photo = step === 2 ? CAR_PHOTOS.dream : CAR_PHOTOS.first
 
   return (
-    <div className="grid min-h-dvh grid-cols-2 bg-bg">
-      <div className="relative overflow-hidden">
+    <div className="grid min-h-dvh grid-cols-1 bg-bg md:grid-cols-2">
+      <div className="relative h-52 overflow-hidden md:h-auto">
         <img src={photo.src} alt={photo.alt} className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-bg" />
-        <div className="absolute bottom-10 left-10 max-w-md">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-bg md:bg-gradient-to-r" />
+        <div className="absolute bottom-5 left-5 max-w-md md:bottom-10 md:left-10">
           <div className="flex items-center gap-2.5 text-white">
             <Logo size={26} />
             <p className="text-sm font-medium">{APP_NAME}</p>
           </div>
-          <p className="mt-4 text-3xl font-semibold tracking-tight">{photo.model}</p>
+          <p className="mt-3 text-2xl font-semibold tracking-tight md:mt-4 md:text-3xl">{photo.model}</p>
           <p className="mt-2 text-sm text-muted">
             {step === 1
               ? 'Сначала эта — на первое время'
@@ -108,7 +108,7 @@ export function Onboarding() {
           </p>
         </div>
       </div>
-      <div className="flex flex-col justify-center px-16 py-12">
+      <div className="flex flex-col justify-center px-5 py-8 md:px-16 md:py-12">
         <p className="text-sm text-muted">Шаг {step} из 3</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">
           {step === 1 ? 'Сначала временная' : step === 2 ? 'Потом та, которую хотите' : 'Стартовая копилка'}
@@ -245,13 +245,13 @@ export function Onboarding() {
               </Button>
             </div>
           ) : null}
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row">
             {step > 1 ? (
-              <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>
+              <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setStep(step - 1)}>
                 Назад
               </Button>
             ) : null}
-            <Button type="button" onClick={next}>
+            <Button type="button" className="w-full sm:w-auto" onClick={next}>
               {step < 3 ? 'Дальше' : 'Открыть дашборд'}
             </Button>
           </div>

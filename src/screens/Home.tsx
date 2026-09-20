@@ -63,7 +63,7 @@ export function Home({
             </p>
           )}
         </StagePanel>
-        <div className={`grid gap-4 ${data.house.visible ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <div className={`grid gap-3 md:gap-4 ${data.house.visible ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2'}`}>
           <StagePanel
             size="compact"
             photo={CAR_PHOTOS.dream}
@@ -99,18 +99,18 @@ export function Home({
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-3 gap-4">
-        <section className="glass flex flex-col rounded-[20px] px-5 py-5">
+      <div className="mt-6 grid grid-cols-1 gap-3 md:mt-8 md:grid-cols-3 md:gap-4">
+        <section className="glass flex flex-col rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">Ещё до «{car.name}»</p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight">{formatUsd(snap.remaining)}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatUsd(snap.remaining)}</p>
           <p className="mt-3 text-sm leading-relaxed text-muted">
             {formatUsd(snap.piggy)} из {formatUsd(snap.target)} · {formatDate(car.deadline)} ·{' '}
             {monthsWord(snap.months)}
           </p>
         </section>
-        <section className="glass flex flex-col rounded-[20px] px-5 py-5">
+        <section className="glass flex flex-col rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">Этот месяц</p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight">
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
             {formatUsd(snap.monthGot)}
             <span className="ml-2 text-lg font-medium text-muted">из {formatUsd(snap.monthlyNeed)}</span>
           </p>
@@ -129,7 +129,7 @@ export function Home({
             <StatusRow key={hint.id} hint={hint} />
           ))}
         </ul>
-        <div className="border-t border-white/8 px-5 py-4">
+        <div className="border-t border-white/8 px-4 py-4 md:px-5">
           <button
             type="button"
             onClick={onBought}
@@ -151,7 +151,7 @@ function MonthChart() {
   const peak = Math.max(1, ...rows.flatMap((row) => [row.actual, row.planned]))
 
   return (
-    <section className="glass flex flex-col rounded-[20px] px-5 py-5">
+    <section className="glass flex flex-col rounded-[20px] px-4 py-4 md:px-5 md:py-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <p className="text-sm text-muted">По месяцам</p>
         <div className="flex flex-wrap gap-3 text-[11px] text-muted">
@@ -205,7 +205,7 @@ function StatusRow({ hint }: { hint: Hint }) {
   const meta = statusMeta(hint.id)
   const Icon = meta.icon
   return (
-    <li className="flex items-start gap-4 border-b border-white/8 px-5 py-4">
+    <li className="flex items-start gap-3 border-b border-white/8 px-4 py-4 md:gap-4 md:px-5">
       <span
         className={`mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-[12px] ${toneClass(hint.tone)}`}
       >
@@ -254,9 +254,11 @@ function StagePanel({
   size?: 'hero' | 'compact'
   children?: ReactNode
 }) {
-  const tall = size === 'hero' ? 'h-[520px]' : 'h-[300px]'
+  const tall = size === 'hero' ? 'h-[280px] md:h-[520px]' : 'h-[176px] md:h-[300px]'
   const sheet =
-    size === 'hero' ? 'bottom-5 left-5 w-max max-w-[80%] p-4' : 'bottom-4 right-4 w-max max-w-[80%] p-3.5'
+    size === 'hero'
+      ? 'bottom-3 left-3 right-3 p-3.5 md:right-auto md:bottom-5 md:left-5 md:w-max md:max-w-[80%] md:p-4'
+      : 'bottom-2.5 left-2.5 right-2.5 p-2.5 md:left-auto md:right-4 md:bottom-4 md:w-max md:max-w-[80%] md:p-3.5'
   return (
     <section className={tall}>
       <div className="relative h-full overflow-hidden rounded-[20px]">
@@ -269,8 +271,8 @@ function StagePanel({
         <div className={`glass absolute ${sheet} rounded-[12px]`}>
           <p className="text-[11px] tracking-[0.14em] text-white/70 uppercase">{label}</p>
           <p
-            className={`mt-1.5 whitespace-nowrap font-semibold leading-tight tracking-tight text-white ${
-              size === 'hero' ? 'text-[1.35rem]' : 'text-[1.15rem]'
+            className={`mt-1.5 truncate font-semibold leading-tight tracking-tight text-white ${
+              size === 'hero' ? 'text-[1.2rem] md:text-[1.35rem]' : 'text-[1rem] md:text-[1.15rem]'
             }`}
           >
             {name}

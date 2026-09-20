@@ -30,19 +30,19 @@ export function Savings() {
         </button>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
-        <section className="glass rounded-[20px] px-5 py-5">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">USD</p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight">{formatUsd(split.usdCash, true)}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatUsd(split.usdCash, true)}</p>
           <p className="mt-3 text-sm text-muted">Номинал операций в USD</p>
         </section>
-        <section className="glass rounded-[20px] px-5 py-5">
+        <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">BYN</p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight">{formatByn(split.bynCash)}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatByn(split.bynCash)}</p>
         </section>
-        <section className="glass rounded-[20px] px-5 py-5">
+        <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">Всего в копилке</p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight">{formatUsd(split.totalUsd, true)}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatUsd(split.totalUsd, true)}</p>
           <p className="mt-3 text-sm text-muted">USD + BYN по курсу каждой операции</p>
         </section>
       </div>

@@ -85,14 +85,14 @@ export function SettingsScreen() {
 
   return (
     <div className="max-w-4xl pb-8">
-      <div className="mt-2 grid grid-cols-2 gap-x-10 gap-y-4">
-        <p className="col-span-2 text-sm text-muted">Облако · токен GitHub</p>
-        <p className="col-span-2 text-[13px] leading-relaxed text-muted">
+      <div className="mt-2 grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-2">
+        <p className="col-span-full text-sm text-muted">Облако · токен GitHub</p>
+        <p className="col-span-full text-[13px] leading-relaxed text-muted">
           Сюда вставляется classic token с правом gist — тогда копилка одна на телефоне и компьютере.
         </p>
         {cloudEnabled ? (
           <>
-            <p className="col-span-2 text-[13px] text-muted">
+            <p className="col-span-full text-[13px] text-muted">
               {syncStatus === 'ok'
                 ? 'Синхронизация включена.'
                 : syncStatus === 'saving'
@@ -108,7 +108,7 @@ export function SettingsScreen() {
                 <TextInput readOnly value={syncCode} onFocus={(e) => e.currentTarget.select()} />
               </Field>
             ) : (
-              <p className="col-span-2 text-[13px] text-muted">
+              <p className="col-span-full text-[13px] text-muted">
                 Код появится после первого успешного сохранения в gist.
               </p>
             )}
@@ -149,7 +149,7 @@ export function SettingsScreen() {
               </Button>
             ) : null}
             {cloudLocked ? (
-              <p className="col-span-2 text-[13px] text-muted">
+              <p className="col-span-full text-[13px] text-muted">
                 Токен задан при сборке сайта — на всех устройствах копилка откроется сама.
               </p>
             ) : (
@@ -197,11 +197,11 @@ export function SettingsScreen() {
             >
               {cloudBusy ? 'Подключаю…' : 'Включить синхронизацию'}
             </Button>
-            {cloudError ? <p className="col-span-2 text-sm text-bad">{cloudError}</p> : null}
+            {cloudError ? <p className="col-span-full text-sm text-bad">{cloudError}</p> : null}
           </>
         )}
 
-        <p className="col-span-2 mt-8 text-sm text-muted">Временная · {CAR_PHOTOS.first.model}</p>
+        <p className="col-span-full mt-8 text-sm text-muted">Временная · {CAR_PHOTOS.first.model}</p>
         <Field label="Название">
           <TextInput value={firstName} onChange={(e) => setFirstName(e.target.value)} />
         </Field>
@@ -212,7 +212,7 @@ export function SettingsScreen() {
           <TextInput type="date" value={firstDeadline} onChange={(e) => setFirstDeadline(e.target.value)} />
         </Field>
 
-        <p className="col-span-2 mt-4 text-sm text-muted">Желанная · {CAR_PHOTOS.dream.model}</p>
+        <p className="col-span-full mt-4 text-sm text-muted">Желанная · {CAR_PHOTOS.dream.model}</p>
         <Field label="Название">
           <TextInput value={dreamName} onChange={(e) => setDreamName(e.target.value)} />
         </Field>
@@ -222,7 +222,7 @@ export function SettingsScreen() {
         <Field label="Срок">
           <TextInput type="date" value={dreamDeadline} onChange={(e) => setDreamDeadline(e.target.value)} />
         </Field>
-        <p className="col-span-2 mt-4 text-sm text-muted">Третья · {CAR_PHOTOS.later.model}</p>
+        <p className="col-span-full mt-4 text-sm text-muted">Третья · {CAR_PHOTOS.later.model}</p>
         <Field label="Название">
           <TextInput value={laterName} onChange={(e) => setLaterName(e.target.value)} />
         </Field>
@@ -233,8 +233,8 @@ export function SettingsScreen() {
           <TextInput type="date" value={laterDeadline} onChange={(e) => setLaterDeadline(e.target.value)} />
         </Field>
 
-        <p className="col-span-2 mt-4 text-sm text-muted">Четвёртая · дом</p>
-        <label className="col-span-2 flex items-center gap-3 text-[15px]">
+        <p className="col-span-full mt-4 text-sm text-muted">Четвёртая · дом</p>
+        <label className="col-span-full flex items-center gap-3 text-[15px]">
           <input
             type="checkbox"
             checked={houseVisible}
@@ -260,7 +260,7 @@ export function SettingsScreen() {
           <TextInput inputMode="decimal" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
         </Field>
 
-        <p className="col-span-2 mt-4 text-sm text-muted">Курс BYN за $1</p>
+        <p className="col-span-full mt-4 text-sm text-muted">Курс BYN за $1</p>
         <Field
           label="Свой курс"
           hint={

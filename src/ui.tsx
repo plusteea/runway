@@ -68,7 +68,7 @@ export function Screen({
   footer?: ReactNode
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col px-6 py-6">
+    <div className="flex h-full min-h-0 flex-col px-5 py-5 md:px-6 md:py-6">
       <header className="mb-6 flex shrink-0 items-center gap-2">
         {onBack ? (
           <button

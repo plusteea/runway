@@ -64,8 +64,8 @@ function TxRow({ tx, onDelete }: { tx: Transaction; onDelete: () => void }) {
   const usd = txToUsd(tx)
   return (
     <li className="flex items-center justify-between gap-3 border-t border-white/10 py-3 first:border-t-0">
-      <div>
-        <p className="text-[15px]">
+      <div className="min-w-0">
+        <p className="break-words text-[15px]">
           {tx.type === 'withdraw' ? 'Снятие' : 'Пополнение'} · {formatMoney(tx)}
         </p>
         <p className="mt-0.5 text-[13px] text-muted">

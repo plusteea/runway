@@ -44,6 +44,7 @@ export function Savings() {
         <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">BYN</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatByn(split.bynCash)}</p>
+          <p className="mt-3 text-sm text-muted">Номинал операций в BYN</p>
         </section>
         <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">Всего в копилке</p>

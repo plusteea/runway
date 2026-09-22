@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Pencil } from 'lucide-react'
 import { lastPurchase, savingsSplit } from '../calc'
-import { formatByn, formatUsd } from '../format'
+import { formatByn, formatEur, formatUsd } from '../format'
 import { applyCashTargets } from '../storage'
 import { useStore } from '../store'
 import { Button, Field, TextInput } from '../ui'
@@ -17,8 +17,8 @@ export function Savings() {
       <div className="flex items-start justify-between gap-4">
         <p className="text-sm text-muted">
           {afterPurchase
-            ? 'Сверка копилки текущего этапа: номинал в BYN и USD и сколько это в долларах.'
-            : 'Сверка копилки: сколько лежит в BYN и в долларах.'}
+            ? 'Сверка копилки текущего этапа: номинал в USD, EUR и BYN и сколько это в долларах.'
+            : 'Сверка копилки: сколько лежит в долларах, евро и белрублях.'}
         </p>
         <button
           type="button"
@@ -30,11 +30,16 @@ export function Savings() {
         </button>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
         <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">USD</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatUsd(split.usdCash, true)}</p>
           <p className="mt-3 text-sm text-muted">Номинал операций в USD</p>
+        </section>
+        <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
+          <p className="text-sm text-muted">EUR</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatEur(split.eurCash, true)}</p>
+          <p className="mt-3 text-sm text-muted">Номинал операций в EUR</p>
         </section>
         <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">BYN</p>
@@ -43,13 +48,14 @@ export function Savings() {
         <section className="glass rounded-[20px] px-4 py-4 md:px-5 md:py-5">
           <p className="text-sm text-muted">Всего в копилке</p>
           <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{formatUsd(split.totalUsd, true)}</p>
-          <p className="mt-3 text-sm text-muted">USD + BYN по курсу каждой операции</p>
+          <p className="mt-3 text-sm text-muted">USD + EUR + BYN по курсу операции</p>
         </section>
       </div>
 
       <section className="glass mt-4 overflow-hidden rounded-[20px]">
         <ul>
           <Row label="Доллары, номинал" value={formatUsd(split.usdCash, true)} />
+          <Row label="Евро, номинал" value={formatEur(split.eurCash, true)} />
           <Row label="Белрубли, номинал" value={formatByn(split.bynCash)} />
           <Row label="Итого в копилке" value={formatUsd(split.totalUsd, true)} last />
         </ul>
@@ -58,11 +64,13 @@ export function Savings() {
       {open ? (
         <EditDialog
           usd={split.usdCash}
+          eur={split.eurCash}
           byn={split.bynCash}
-          hasRate={Boolean(split.rate)}
+          hasUsdRate={Boolean(split.rate)}
+          hasEurRate={Boolean(split.rate && split.eurRate)}
           onClose={() => setOpen(false)}
-          onSave={(nextUsd, nextByn, reason) => {
-            setData(applyCashTargets(data, nextUsd, nextByn, reason))
+          onSave={(nextUsd, nextByn, nextEur, reason) => {
+            setData(applyCashTargets(data, nextUsd, nextByn, nextEur, reason))
             setOpen(false)
           }}
         />
@@ -73,38 +81,48 @@ export function Savings() {
 
 function EditDialog({
   usd,
+  eur,
   byn,
-  hasRate,
+  hasUsdRate,
+  hasEurRate,
   onClose,
   onSave,
 }: {
   usd: number
+  eur: number
   byn: number
-  hasRate: boolean
+  hasUsdRate: boolean
+  hasEurRate: boolean
   onClose: () => void
-  onSave: (usd: number, byn: number, reason: string) => void
+  onSave: (usd: number, byn: number, eur: number, reason: string) => void
 }) {
   const [nextUsd, setNextUsd] = useState(String(usd))
+  const [nextEur, setNextEur] = useState(String(eur))
   const [nextByn, setNextByn] = useState(String(byn))
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
 
   function submit() {
     const parsedUsd = Number(nextUsd.replace(',', '.'))
+    const parsedEur = Number(nextEur.replace(',', '.'))
     const parsedByn = Number(nextByn.replace(',', '.'))
-    if (!Number.isFinite(parsedUsd) || !Number.isFinite(parsedByn)) {
-      setError('Укажите числа в обеих валютах.')
+    if (!Number.isFinite(parsedUsd) || !Number.isFinite(parsedEur) || !Number.isFinite(parsedByn)) {
+      setError('Укажите числа во всех валютах.')
       return
     }
-    if (parsedByn !== byn && !hasRate) {
-      setError('Чтобы править BYN, нужен курс.')
+    if (parsedByn !== byn && !hasUsdRate) {
+      setError('Чтобы править BYN, нужен курс доллара.')
+      return
+    }
+    if (parsedEur !== eur && !hasEurRate) {
+      setError('Чтобы править EUR, нужны курсы доллара и евро.')
       return
     }
     if (!reason.trim()) {
       setError('Напишите, почему изменились данные.')
       return
     }
-    onSave(parsedUsd, parsedByn, reason.trim())
+    onSave(parsedUsd, parsedByn, parsedEur, reason.trim())
   }
 
   return (
@@ -121,6 +139,9 @@ function EditDialog({
         <div className="mt-5 grid gap-4">
           <Field label="В долларах, $">
             <TextInput inputMode="decimal" value={nextUsd} onChange={(e) => setNextUsd(e.target.value)} />
+          </Field>
+          <Field label="В евро, €">
+            <TextInput inputMode="decimal" value={nextEur} onChange={(e) => setNextEur(e.target.value)} />
           </Field>
           <Field label="В BYN, Br">
             <TextInput inputMode="decimal" value={nextByn} onChange={(e) => setNextByn(e.target.value)} />

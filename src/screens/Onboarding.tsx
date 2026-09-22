@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CAR_PHOTOS } from '../cars'
-import { effectiveRate, isoDate } from '../calc'
+import { effectiveEurRate, effectiveRate, isoDate } from '../calc'
 import { seedStarting } from '../storage'
 import { useStore } from '../store'
 import type { Car } from '../types'
@@ -31,6 +31,7 @@ export function Onboarding() {
   })
   const [tradeInUsd, setTradeInUsd] = useState(6000)
   const [haveUsd, setHaveUsd] = useState(0)
+  const [haveEur, setHaveEur] = useState(0)
   const [haveByn, setHaveByn] = useState(0)
   const [capacity, setCapacity] = useState(400)
   const [error, setError] = useState('')
@@ -64,6 +65,12 @@ export function Onboarding() {
       )
       return
     }
+    if (haveEur > 0 && (!effectiveRate(data) || !effectiveEurRate(data))) {
+      setError(
+        'Для стартовых евро нужны курсы USD и EUR. Подождите Нацбанк или укажите 0 и задайте курсы позже.',
+      )
+      return
+    }
 
     setData(
       seedStarting(
@@ -82,6 +89,7 @@ export function Onboarding() {
         },
         haveUsd,
         haveByn,
+        haveEur,
       ),
     )
   }
@@ -196,6 +204,15 @@ export function Onboarding() {
                   inputMode="decimal"
                   value={haveUsd || ''}
                   onChange={(e) => setHaveUsd(Number(e.target.value))}
+                />
+              </Field>
+              <Field label="Уже есть, EUR">
+                <TextInput
+                  type="number"
+                  min={0}
+                  inputMode="decimal"
+                  value={haveEur || ''}
+                  onChange={(e) => setHaveEur(Number(e.target.value))}
                 />
               </Field>
               <Field label="Уже есть, BYN">

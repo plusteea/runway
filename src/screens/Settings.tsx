@@ -39,6 +39,9 @@ export function SettingsScreen() {
   const [override, setOverride] = useState(
     data.fx.overrideRate ? String(data.fx.overrideRate) : '',
   )
+  const [overrideEur, setOverrideEur] = useState(
+    data.fx.overrideEurRate ? String(data.fx.overrideEurRate) : '',
+  )
   const [saved, setSaved] = useState(false)
 
   function save() {
@@ -72,6 +75,7 @@ export function SettingsScreen() {
       fx: {
         ...data.fx,
         overrideRate: override.trim() ? Number(override.replace(',', '.')) : null,
+        overrideEurRate: overrideEur.trim() ? Number(overrideEur.replace(',', '.')) : null,
       },
     })
     setSaved(true)
@@ -260,9 +264,9 @@ export function SettingsScreen() {
           <TextInput inputMode="decimal" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
         </Field>
 
-        <p className="col-span-full mt-4 text-sm text-muted">Курс BYN за $1</p>
+        <p className="col-span-full mt-4 text-sm text-muted">Курс BYN</p>
         <Field
-          label="Свой курс"
+          label="Свой курс за $1"
           hint={
             data.fx.nbrbRate
               ? `Нацбанк сейчас ${data.fx.nbrbRate}. Пустое поле — брать его.`
@@ -274,6 +278,21 @@ export function SettingsScreen() {
             value={override}
             onChange={(e) => setOverride(e.target.value)}
             placeholder="например 3.27"
+          />
+        </Field>
+        <Field
+          label="Свой курс за €1"
+          hint={
+            data.fx.nbrbEurRate
+              ? `Нацбанк сейчас ${data.fx.nbrbEurRate}. Пустое поле — брать его.`
+              : 'Если Нацбанк не отвечает, укажите курс евро сами.'
+          }
+        >
+          <TextInput
+            inputMode="decimal"
+            value={overrideEur}
+            onChange={(e) => setOverrideEur(e.target.value)}
+            placeholder="например 3.51"
           />
         </Field>
         <Button type="button" variant="secondary" onClick={() => void refreshRate()}>

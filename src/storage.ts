@@ -1,5 +1,5 @@
 import type { AppData, Purchase, Transaction } from './types'
-import { currentPiggyUsd, effectiveRate, isoDate, round2, savingsSplit } from './calc'
+import { currentPiggyUsd, effectiveEurRate, effectiveRate, isoDate, round2, savingsSplit } from './calc'
 
 const KEY = 'garage-kopilka-v1'
 
@@ -21,6 +21,8 @@ export function emptyData(): AppData {
       nbrbRate: null,
       nbrbFetchedAt: null,
       overrideRate: null,
+      nbrbEurRate: null,
+      overrideEurRate: null,
     },
     txs: [],
     purchases: [],
@@ -70,6 +72,7 @@ export function addTx(
   },
 ): AppData {
   const rate = effectiveRate(data)
+  const eurRate = effectiveEurRate(data)
   const tx: Transaction = {
     id: crypto.randomUUID(),
     type: input.type,
@@ -78,6 +81,7 @@ export function addTx(
     date: input.date,
     note: input.note?.trim() || undefined,
     rateBynPerUsd: rate ?? 0,
+    rateBynPerEur: eurRate ?? undefined,
     createdAt: new Date().toISOString(),
   }
   return { ...data, txs: [tx, ...data.txs] }
@@ -114,6 +118,7 @@ export function buyStage(data: AppData, stage: 1 | 2, tradeInUsd?: number): AppD
       date: isoDate(now),
       note: 'Остаток после покупки',
       rateBynPerUsd: effectiveRate(data) ?? 0,
+      rateBynPerEur: effectiveEurRate(data) ?? undefined,
       createdAt: new Date(now.getTime() + 1).toISOString(),
     }
     next = { ...next, txs: [leftover, ...next.txs] }
@@ -122,8 +127,9 @@ export function buyStage(data: AppData, stage: 1 | 2, tradeInUsd?: number): AppD
   return next
 }
 
-export function seedStarting(data: AppData, usd: number, byn: number): AppData {
+export function seedStarting(data: AppData, usd: number, byn: number, eur = 0): AppData {
   const rate = effectiveRate(data) ?? 0
+  const eurRate = effectiveEurRate(data) ?? undefined
   const now = new Date()
   const txs: Transaction[] = []
   if (usd > 0) {
@@ -135,7 +141,21 @@ export function seedStarting(data: AppData, usd: number, byn: number): AppData {
       date: isoDate(now),
       note: 'Уже было',
       rateBynPerUsd: rate,
+      rateBynPerEur: eurRate,
       createdAt: now.toISOString(),
+    })
+  }
+  if (eur > 0) {
+    txs.push({
+      id: crypto.randomUUID(),
+      type: 'deposit',
+      currency: 'EUR',
+      amount: eur,
+      date: isoDate(now),
+      note: 'Уже было',
+      rateBynPerUsd: rate,
+      rateBynPerEur: eurRate,
+      createdAt: new Date(now.getTime() + 1).toISOString(),
     })
   }
   if (byn > 0) {
@@ -147,24 +167,35 @@ export function seedStarting(data: AppData, usd: number, byn: number): AppData {
       date: isoDate(now),
       note: 'Уже было',
       rateBynPerUsd: rate,
-      createdAt: new Date(now.getTime() + 1).toISOString(),
+      rateBynPerEur: eurRate,
+      createdAt: new Date(now.getTime() + 2).toISOString(),
     })
   }
   return { ...data, txs: [...txs, ...data.txs] }
 }
 
-export function applyCashTargets(data: AppData, usd: number, byn: number, reason: string): AppData {
+export function applyCashTargets(data: AppData, usd: number, byn: number, eur: number, reason: string): AppData {
   const split = savingsSplit(data)
   const date = isoDate(new Date())
   const note = reason.trim()
   let next = data
   const usdDelta = round2(usd - split.usdCash)
+  const eurDelta = round2(eur - split.eurCash)
   const bynDelta = round2(byn - split.bynCash)
   if (usdDelta !== 0) {
     next = addTx(next, {
       type: usdDelta > 0 ? 'deposit' : 'withdraw',
       currency: 'USD',
       amount: Math.abs(usdDelta),
+      date,
+      note,
+    })
+  }
+  if (eurDelta !== 0) {
+    next = addTx(next, {
+      type: eurDelta > 0 ? 'deposit' : 'withdraw',
+      currency: 'EUR',
+      amount: Math.abs(eurDelta),
       date,
       note,
     })

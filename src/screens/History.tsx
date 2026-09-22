@@ -71,7 +71,7 @@ function TxRow({ tx, onDelete }: { tx: Transaction; onDelete: () => void }) {
         <p className="mt-0.5 text-[13px] text-muted">
           {formatDateShort(tx.date)}
           {tx.note ? ` · ${tx.note}` : ''}
-          {tx.currency === 'BYN' ? ` · ${formatUsd(Math.abs(usd), true)}` : ''}
+          {tx.currency !== 'USD' ? ` · ${formatUsd(Math.abs(usd), true)}` : ''}
         </p>
       </div>
       <div className="flex items-center gap-2">

@@ -27,8 +27,17 @@ export function formatByn(n: number): string {
   return `${bynFmt.format(n)} Br`
 }
 
+export function formatEur(n: number, exact = false): string {
+  const fmt = exact ? usdExact : usdFmt
+  const abs = fmt.format(Math.abs(n))
+  const sign = n < 0 ? '−' : ''
+  return `${sign}€${abs}`
+}
+
 export function formatMoney(tx: Transaction): string {
-  return tx.currency === 'USD' ? formatUsd(tx.amount, true) : formatByn(tx.amount)
+  if (tx.currency === 'USD') return formatUsd(tx.amount, true)
+  if (tx.currency === 'EUR') return formatEur(tx.amount, true)
+  return formatByn(tx.amount)
 }
 
 export function formatDate(iso: string): string {

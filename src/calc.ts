@@ -22,9 +22,25 @@ export function effectiveRate(data: AppData): number | null {
   return null
 }
 
+export function effectiveEurRate(data: AppData): number | null {
+  if (data.fx.overrideEurRate && data.fx.overrideEurRate > 0) return data.fx.overrideEurRate
+  if (data.fx.nbrbEurRate && data.fx.nbrbEurRate > 0) return data.fx.nbrbEurRate
+  return null
+}
+
+export function eurToUsdAmount(amount: number, usdRate: number | null, eurRate: number | null): number | null {
+  if (!usdRate || !eurRate || usdRate <= 0 || eurRate <= 0) return null
+  return round2(amount * (eurRate / usdRate))
+}
+
 export function txToUsd(tx: Transaction): number {
   const signed = tx.type === 'withdraw' ? -tx.amount : tx.amount
   if (tx.currency === 'USD') return signed
+  if (tx.currency === 'EUR') {
+    const eur = tx.rateBynPerEur ?? 0
+    if (!tx.rateBynPerUsd || !eur) return 0
+    return signed * (eur / tx.rateBynPerUsd)
+  }
   if (!tx.rateBynPerUsd) return 0
   return signed / tx.rateBynPerUsd
 }
@@ -46,19 +62,23 @@ export function savingsSplit(data: AppData) {
   const txs = data.txs.filter((tx) => !purchase || tx.createdAt > purchase.createdAt)
   const signed = (tx: Transaction) => (tx.type === 'withdraw' ? -tx.amount : tx.amount)
   const usdCash = round2(txs.filter((tx) => tx.currency === 'USD').reduce((acc, tx) => acc + signed(tx), 0))
+  const eurCash = round2(txs.filter((tx) => tx.currency === 'EUR').reduce((acc, tx) => acc + signed(tx), 0))
   const bynCash = round2(txs.filter((tx) => tx.currency === 'BYN').reduce((acc, tx) => acc + signed(tx), 0))
   const bynBookedUsd = round2(
     txs.filter((tx) => tx.currency === 'BYN').reduce((acc, tx) => acc + txToUsd(tx), 0),
   )
   const rate = effectiveRate(data)
+  const eurRate = effectiveEurRate(data)
   const bynLiveUsd = rate && rate > 0 ? round2(bynCash / rate) : null
   return {
     usdCash,
+    eurCash,
     bynCash,
     bynBookedUsd,
     bynLiveUsd,
     totalUsd: currentPiggyUsd(data),
     rate,
+    eurRate,
   }
 }
 
@@ -215,5 +235,6 @@ export function snapshot(data: AppData, from = new Date()) {
     capacityDate: dateIfCapacity(data, from),
     afterFirst: afterFirstRemainingUsd(data),
     rate: effectiveRate(data),
+    eurRate: effectiveEurRate(data),
   }
 }

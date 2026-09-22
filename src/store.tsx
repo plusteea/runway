@@ -23,7 +23,7 @@ import {
   writeCloudConfig,
   type CloudStatus,
 } from './cloud'
-import { fetchNbrbUsd, withNbrbRate } from './fx'
+import { fetchNbrbRates, withNbrbRates } from './fx'
 import { emptyData, loadData, saveData } from './storage'
 import type { AppData } from './types'
 
@@ -132,8 +132,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const refreshRate = useCallback(async () => {
     setRateStatus('loading')
     try {
-      const payload = await fetchNbrbUsd()
-      setData((prev) => withNbrbRate(prev, payload.Cur_OfficialRate))
+      const payload = await fetchNbrbRates()
+      setData((prev) => withNbrbRates(prev, payload.usd, payload.eur))
       setRateStatus('idle')
     } catch {
       setRateStatus('error')

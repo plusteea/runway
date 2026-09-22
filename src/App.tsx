@@ -1,6 +1,6 @@
 import { History as HistoryIcon, House, PiggyBank, Plus, Settings2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { effectiveRate } from './calc'
+import { effectiveEurRate, effectiveRate } from './calc'
 import { AddMoney } from './screens/AddMoney'
 import { Bought } from './screens/Bought'
 import { History } from './screens/History'
@@ -38,7 +38,8 @@ function formatRate(rate: number | null) {
 export default function App() {
   const { data, refreshRate, rateStatus, ready, syncStatus } = useStore()
   const rate = effectiveRate(data)
-  const usingOverride = Boolean(data.fx.overrideRate)
+  const eurRate = effectiveEurRate(data)
+  const usingOverride = Boolean(data.fx.overrideRate || data.fx.overrideEurRate)
   const [tab, setTab] = useState<Tab>('home')
   const [overlay, setOverlay] = useState<Overlay>(null)
 
@@ -63,9 +64,12 @@ export default function App() {
             onClick={() => void refreshRate()}
             className="ml-auto min-h-11 px-1 text-right"
           >
-            <p className="text-[15px] leading-none font-semibold tracking-tight">
+            <p className="text-[13px] leading-none font-semibold tracking-tight">
               {formatRate(rate)}
-              <span className="ml-1 text-[11px] font-medium text-muted">Br</span>
+              <span className="text-[10px] font-medium text-muted">$</span>
+              <span className="mx-1 text-muted">·</span>
+              {formatRate(eurRate)}
+              <span className="text-[10px] font-medium text-muted">€</span>
             </p>
             <p className="mt-1 text-[10px] text-muted">
               {rateStatus === 'loading' ? 'Обновляю…' : syncLabel(syncStatus)}
@@ -99,10 +103,14 @@ export default function App() {
             ))}
           </nav>
           <div className="mt-auto px-3">
-            <p className="text-[11px] font-medium tracking-[0.16em] text-muted uppercase">Курс USD</p>
-            <p className="mt-1.5 text-[1.65rem] leading-none font-semibold tracking-tight">
+            <p className="text-[11px] font-medium tracking-[0.16em] text-muted uppercase">Курс</p>
+            <p className="mt-1.5 text-[1.35rem] leading-none font-semibold tracking-tight">
               {formatRate(rate)}
-              <span className="ml-1 text-sm font-medium text-muted">Br</span>
+              <span className="ml-1 text-sm font-medium text-muted">$</span>
+            </p>
+            <p className="mt-2 text-[1.35rem] leading-none font-semibold tracking-tight">
+              {formatRate(eurRate)}
+              <span className="ml-1 text-sm font-medium text-muted">€</span>
             </p>
             <button
               type="button"
@@ -111,10 +119,10 @@ export default function App() {
             >
               {rateStatus === 'loading'
                 ? 'Обновляю…'
-                : rate
+                : rate || eurRate
                   ? usingOverride
                     ? 'Свой · обновить НБРБ'
-                    : 'НБРБ · за $1'
+                    : 'НБРБ · Br за $ и €'
                   : 'Подтянуть НБРБ'}
             </button>
             <p className="mt-3 text-[11px] text-muted">{syncLabel(syncStatus)}</p>

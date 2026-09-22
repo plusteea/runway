@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { effectiveRate, isoDate } from '../calc'
+import { effectiveEurRate, effectiveRate, eurToUsdAmount, isoDate } from '../calc'
 import { formatUsd } from '../format'
 import { addTx } from '../storage'
 import { useStore } from '../store'
@@ -15,6 +15,9 @@ export function AddMoney({ onBack }: { onBack: () => void }) {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const rate = effectiveRate(data)
+  const eurRate = effectiveEurRate(data)
+  const parsed = Number(amount.replace(',', '.'))
+  const eurAsUsd = currency === 'EUR' && parsed > 0 ? eurToUsdAmount(parsed, rate, eurRate) : null
 
   function submit() {
     const n = Number(amount.replace(',', '.'))
@@ -23,12 +26,24 @@ export function AddMoney({ onBack }: { onBack: () => void }) {
       return
     }
     if (currency === 'BYN' && !rate) {
-      setError('Сначала нужен курс: обновите его на главной или укажите свой в целях.')
+      setError('Сначала нужен курс доллара: обновите его на главной или укажите свой в целях.')
+      return
+    }
+    if (currency === 'EUR' && (!rate || !eurRate)) {
+      setError('Для евро нужны курсы USD и EUR. Подтяните Нацбанк или укажите свои в целях.')
       return
     }
     setData(addTx(data, { type, currency, amount: n, date, note }))
     onBack()
   }
+
+  const amountLabel = currency === 'USD' ? 'Сумма, $' : currency === 'EUR' ? 'Сумма, €' : 'Сумма, Br'
+  const hint =
+    currency === 'BYN' && rate && parsed > 0
+      ? `В прогресс уйдёт ${formatUsd(parsed / rate, true)} по курсу на эту операцию`
+      : currency === 'EUR' && eurAsUsd != null
+        ? `В прогресс уйдёт ${formatUsd(eurAsUsd, true)} по курсу на эту операцию`
+        : undefined
 
   return (
     <Screen
@@ -48,23 +63,19 @@ export function AddMoney({ onBack }: { onBack: () => void }) {
           Снять
         </Toggle>
       </div>
-      <div className="mb-5 grid grid-cols-2 gap-2">
+      <div className="mb-5 grid grid-cols-3 gap-2">
         <Toggle active={currency === 'USD'} onClick={() => setCurrency('USD')}>
           USD
+        </Toggle>
+        <Toggle active={currency === 'EUR'} onClick={() => setCurrency('EUR')}>
+          EUR
         </Toggle>
         <Toggle active={currency === 'BYN'} onClick={() => setCurrency('BYN')}>
           BYN
         </Toggle>
       </div>
       <div className="grid gap-4">
-        <Field
-          label={currency === 'USD' ? 'Сумма, $' : 'Сумма, Br'}
-          hint={
-            currency === 'BYN' && rate && Number(amount.replace(',', '.')) > 0
-              ? `В прогресс уйдёт ${formatUsd(Number(amount.replace(',', '.')) / rate, true)} по курсу на эту операцию`
-              : undefined
-          }
-        >
+        <Field label={amountLabel} hint={hint}>
           <TextInput
             inputMode="decimal"
             value={amount}

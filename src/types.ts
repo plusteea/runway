@@ -1,4 +1,4 @@
-export type Currency = 'USD' | 'BYN'
+export type Currency = 'USD' | 'EUR' | 'BYN'
 export type Stage = 1 | 2 | 'done'
 export type TxType = 'deposit' | 'withdraw'
 
@@ -16,6 +16,7 @@ export type Transaction = {
   date: string
   note?: string
   rateBynPerUsd: number
+  rateBynPerEur?: number
   createdAt: string
 }
 
@@ -45,6 +46,8 @@ export type AppData = {
     nbrbRate: number | null
     nbrbFetchedAt: string | null
     overrideRate: number | null
+    nbrbEurRate: number | null
+    overrideEurRate: number | null
   }
   txs: Transaction[]
   purchases: Purchase[]
